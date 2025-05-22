@@ -1,0 +1,480 @@
+:root {
+  /* Color Palette */
+  --primary-color: #007bff; /* A modern blue for accents and buttons */
+  --secondary-color: #6c757d; /* A muted color for secondary elements */
+  --background-color: #f8f9fa; /* A light, soft background */
+  --surface-color: #ffffff; /* White for cards and containers */
+  --text-color: #333; /* Dark grey for main text */
+  --text-color-light: #666; /* Lighter grey for secondary text */
+  --border-color: #dee2e6; /* Light grey for borders */
+
+  /* Spacing Scale (consider a system like 4px or 8px base) */
+  --space-extra-small: 4px;
+  --space-small: 8px;
+  --space-medium: 16px;
+  --space-large: 24px;
+  --space-extra-large: 32px;
+
+  /* Typography */
+  --font-family-base: 'Roboto', sans-serif; /* Using a more common and versatile font */
+  --font-size-base: 1rem; /* 16px */
+  --line-height-base: 1.5;
+  --font-size-large: 1.5rem; /* For headings */
+  --font-size-small: 0.9rem; /* For smaller text */
+
+  /* Border Radius */
+  --border-radius: 5px;
+
+  /* Box Shadow */
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Removed justify-content: center to allow content to flow naturally */
+  min-height: 100vh; /* Ensure App takes at least full viewport height */
+}
+
+.navbar {
+  width: 100%;
+  height: 60px; /* Slightly reduced height */
+  background-color: var(--text-color); /* Using dark grey for consistency */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 var(--space-medium); /* Add some padding */
+  box-shadow: var(--box-shadow); /* Add a subtle shadow */
+}
+
+.navbar a {
+  color: var(--surface-color); /* White links */
+  text-decoration: none;
+  margin: 0 var(--space-medium); /* Use spacing variable */
+  font-size: var(--font-size-large);
+  font-weight: bold; /* Make nav links bold */
+  transition: color 0.3s ease; /* Smooth transition on hover */
+}
+
+.navbar a:hover {
+  color: var(--primary-color); /* Highlight on hover */
+}
+
+.auth,
+.create-recipe {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Allow these sections to take full width */
+  padding: var(--space-large) 0; /* Add vertical padding */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.auth-container,
+.create-recipe-container { /* Renamed .create-recipe to .create-recipe-container for clarity */
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: var(--space-large); /* Use spacing variable */
+  margin: var(--space-large); /* Use spacing variable */
+  width: 90%; /* Make width relative for responsiveness */
+  max-width: 500px; /* Set a max-width for larger screens */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-medium); /* Use spacing variable */
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: var(--space-small); /* Use spacing variable */
+  color: var(--text-color-light); /* Lighter color for labels */
+}
+
+input,
+textarea { /* Added textarea for potential future use in forms */
+  padding: var(--space-small); /* Use spacing variable */
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  width: 100%; /* Make input take full width of its container */
+}
+
+button { /* Basic button styling */
+  background-color: var(--primary-color);
+  color: var(--surface-color);
+  padding: var(--space-medium) var(--space-large);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: darken(var(--primary-color), 10%); /* Example of a darker shade (requires preprocessor or JS) */
+  /* Alternatively, use a specific hover color */
+   background-color: #0056b3;
+}
+
+
+h2 {
+  margin-top: 0;
+  margin-bottom: var(--space-large); /* Add bottom margin */
+  color: var(--text-color);
+  text-align: center; /* Center headings in containers */
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%; /* Ensure list takes full width */
+}
+
+li {
+  border: 1px solid var(--border-color);
+  padding: var(--space-medium); /* Use spacing variable */
+  margin-bottom: var(--space-medium); /* Use spacing variable */
+  border-radius: var(--border-radius);
+  background-color: var(--surface-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for list items */
+}
+
+li h3 { /* Style for recipe titles in list */
+  margin-top: 0;
+  margin-bottom: var(--space-small);
+  color: var(--primary-color);
+}
+
+img {
+  max-width: 100%; /* Ensure images are responsive */
+  height: auto;
+  margin-bottom: var(--space-medium); /* Use spacing variable */
+  border-radius: var(--border-radius); /* Round image corners */
+}
+
+/* Remove the conflicting img width rule */
+/* img {
+  width: 400px;
+} */
+
+p {
+  max-width: 100%; /* Allow paragraphs to take full width within their container */
+  font-size: var(--font-size-small); /* Use smaller font size for paragraphs */
+  color: var(--text-color-light); /* Lighter color for paragraphs */
+  margin-bottom: var(--space-medium); /* Add space below paragraphs */
+}
+
+/* Optional: Add some basic responsive adjustments */
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: var(--space-small);
+  }
+
+  .navbar a {
+    margin: var(--space-small) 0;
+    font-size: var(--font-size-base);
+  }
+
+  .auth-container,
+  .create-recipe-container {
+    width: 95%;
+    margin: var(--space-medium);
+    padding: var(--space-medium);
+  }
+}
+
+/* Add this class to the container wrapping your "Create Memory" form */
+.create-memory-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: var(--space-large);
+  margin: var(--space-large) auto; /* Center the container */
+  width: 90%;
+  max-width: 600px; /* Slightly wider max-width for forms with more fields */
+}
+
+.create-memory-container h2 {
+  text-align: center;
+  margin-bottom: var(--space-extra-large); /* More space below the main heading */
+  color: var(--text-color);
+}
+
+/* Reusing the form-group class from previous CSS */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-large); /* Increased space between form groups */
+}
+
+/* Reusing label styles */
+label {
+  font-weight: bold;
+  margin-bottom: var(--space-small);
+  color: var(--text-color-light);
+  display: block; /* Ensure labels are on their own line */
+}
+
+/* Reusing input and textarea styles */
+input[type="text"],
+textarea { /* Assuming text inputs and potentially a textarea for description */
+  padding: var(--space-medium); /* Slightly more padding */
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: var(--space-extra-small); /* Add a little space above input */
+}
+
+/* Specific styles for the descriptions section */
+.description-section {
+  margin-bottom: var(--space-large);
+}
+
+.description-section label {
+    margin-bottom: var(--space-medium); /* More space between the "Descriptions" label and the button/input */
+}
+
+.description-input-group {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    gap: var(--space-medium); /* Space between the button and the input */
+    margin-top: var(--space-small); /* Space above this group */
+}
+
+.description-input-group input[type="text"] {
+    flex-grow: 1; /* Allow the input to take up the remaining space */
+    margin-top: 0; /* Reset margin-top from general input rule */
+}
+
+
+/* Styling for the "Add Description" button */
+.add-description-button { /* Assign a specific class to this button */
+  background-color: var(--secondary-color); /* Using secondary color */
+  color: var(--surface-color);
+  padding: var(--space-small) var(--space-medium);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s ease;
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.add-description-button:hover {
+  background-color: darken(var(--secondary-color), 10%); /* Hover effect */
+   background-color: #545b62; /* Example darker shade */
+}
+
+/* Styling for the "Create Memory" button */
+.create-memory-button { /* Assign a specific class to this button */
+  background-color: var(--primary-color);
+  color: var(--surface-color);
+  padding: var(--space-medium) var(--space-large);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s ease;
+  margin-top: var(--space-large); /* Space above the button */
+  width: 100%; /* Make the button full width */
+}
+
+.create-memory-button:hover {
+  background-color: darken(var(--primary-color), 10%);
+   background-color: #0056b3;
+}
+
+/* Optional: Style for the Image URL group if needed separately */
+/* .image-url-group {
+    margin-bottom: var(--space-large);
+} */
+
+/* Optional: Media query for smaller screens */
+@media (max-width: 600px) {
+  .create-memory-container {
+    width: 95%;
+    margin: var(--space-medium);
+    padding: var(--space-medium);
+  }
+
+  .description-input-group {
+      flex-direction: column; /* Stack button and input on small screens */
+      gap: var(--space-small);
+  }
+
+  .add-description-button {
+      width: 100%; /* Full width button on small screens */
+  }
+}
+
+/* Keep your :root variables and general body/App/navbar styles as they are */
+
+/* --- Enhanced Styles for List Items (Applies to all li matching selectors) --- */
+
+/* Modify the existing li style */
+li {
+  border: 1px solid var(--border-color);
+  padding: var(--space-medium); /* Use spacing variable */
+  margin-bottom: var(--space-large); /* Use larger spacing between items */
+  border-radius: var(--border-radius);
+  background-color: var(--surface-color);
+  box-shadow: var(--box-shadow); /* Use the defined box shadow */
+  /* Ensure li takes full width within its container (ul already set to width 100%) */
+  width: 100%;
+  box-sizing: border-box; /* Include padding and border in width */
+  display: flex; /* Use flexbox to arrange direct children vertically */
+  flex-direction: column;
+  gap: var(--space-medium); /* Add space between direct children of li */
+}
+
+/* Style for the div containing the title (h2) and button/message */
+/* Target the first direct child div of an li */
+li > div:first-child {
+    display: flex; /* Use flexbox to arrange title and button/message side-by-side */
+    justify-content: space-between; /* Push title to left, button/message to right */
+    align-items: center; /* Vertically align items */
+    gap: var(--space-medium); /* Space between title and button/message */
+    /* No margin-bottom needed if li has gap */
+}
+
+/* Style for the title (h2) within the first div of an li */
+li > div:first-child h2 {
+    margin: 0; /* Remove default h2 margins */
+    color: var(--text-color); /* Use primary text color */
+    font-size: var(--font-size-large); /* Use large font size */
+    flex-grow: 1; /* Allow title to take available space */
+    word-wrap: break-word; /* Prevent long titles from overflowing */
+    overflow-wrap: break-word; /* Standard property */
+}
+
+/* Style for the button within the first div of an li */
+li > div:first-child button {
+    /* Inherits base button styles */
+    padding: var(--space-small) var(--space-medium); /* Smaller padding */
+    font-size: var(--font-size-small); /* Smaller font size */
+    flex-shrink: 0; /* Prevent button from shrinking */
+    margin: 0; /* Remove default button margin */
+}
+
+/* Style for the 'Log in to save' paragraph within the first div of an li */
+li > div:first-child p {
+    margin: 0; /* Remove default paragraph margin */
+    font-size: var(--font-size-small); /* Use small font size */
+    color: var(--text-color-light); /* Use lighter text color */
+    flex-shrink: 0; /* Prevent paragraph from shrinking */
+}
+
+
+/* Style for the descriptions div (assuming it has the class 'descriptions') */
+li .descriptions {
+    /* The div itself might not need much style if its children (p tags) are styled */
+    /* Add gap between description paragraphs if needed, although p margin might handle it */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-small); /* Space between description paragraphs */
+}
+
+/* Style for paragraphs within the descriptions div */
+li .descriptions p {
+    margin: 0; /* Remove default paragraph margin as gap is used in parent */
+    font-size: var(--font-size-base); /* Use base font size for descriptions */
+    color: var(--text-color); /* Use primary text color for descriptions */
+    word-wrap: break-word; /* Prevent long descriptions from overflowing */
+    overflow-wrap: break-word; /* Standard property */
+}
+
+
+/* Modify the existing img style to ensure it fits well within the li */
+/* This rule will apply to any img *directly* inside an li, based on your structure */
+li > img {
+  max-width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  border-radius: var(--border-radius);
+  object-fit: cover; /* Cover the area without distorting aspect ratio */
+  /* Removed default margin-bottom, as li gap handles spacing */
+  margin: 0;
+  display: block; /* Prevent extra space below the image */
+  /* If you want a fixed image height for consistency, add: height: 200px; width: 100%; */
+}
+
+/* Style for the 'Time Spent' paragraph (the last direct child p of the li) */
+li > p:last-child {
+    margin: 0; /* Remove default paragraph margin */
+    font-size: var(--font-size-small); /* Use smaller font size */
+    color: var(--text-color-light); /* Use lighter text color */
+    /* Potentially add some top margin if not using li gap */
+    /* margin-top: var(--space-small); */
+}
+
+/* Style for the main page title h1 */
+/* Note: Your existing CSS has styles for h2, but home.js uses h1.
+   Consider changing h1 to h2 in home.js for consistency, but if not,
+   add a style for h1 if it's not already styled globally as you like it. */
+/* Example if you need to style the main h1 specifically: */
+/*
+h1 {
+    text-align: center;
+    margin-bottom: var(--space-large);
+    color: var(--text-color);
+    font-size: var(--font-size-large); // Or larger if h1 should be bigger than h2
+}
+*/
+
+
+/* Optional: Adjustments for smaller screens if needed, though flexbox helps */
+@media (max-width: 600px) {
+    /* Existing media query for auth/create containers */
+
+    /* Ensure li content wraps if necessary on smaller screens */
+    li > div:first-child {
+        flex-direction: column; /* Stack title and button/message on small screens */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    li > div:first-child h2 {
+        width: 100%; /* Title takes full width when stacked */
+        text-align: left; /* Align title to left */
+    }
+
+    li > div:first-child button,
+    li > div:first-child p {
+        width: 100%; /* Button/message takes full width when stacked */
+        text-align: left; /* Align button/message to left */
+    }
+}
+
+/* Add style for the empty list message if it exists and doesn't have the empty-list-message class */
+/* If the empty message is a direct p tag in the main div */
+/*
+.App > div > p {
+    text-align: center;
+    color: var(--text-color-light);
+    font-size: var(--font-size-large);
+    margin-top: var(--space-large);
+}
+*/
+/* If it has the empty-list-message class already (as in my previous example), the previous style applies */
