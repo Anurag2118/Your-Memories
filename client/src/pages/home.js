@@ -166,25 +166,7 @@ export const Home = () => {
         ))}
       </ul>
 
-      {/* Optional: Section to display saved memories - uncomment and adapt as needed */}
-       {/* <h2>Saved Memories</h2>
-       {Array.isArray(savedMemories) && savedMemories.length > 0 ? (
-           <ul>
-               {memories
-                   // Filter all memories to find saved ones based on the savedMemories IDs
-                   .filter(memory => isMemorySaved(memory._id))
-                   .map(savedMemory => (
-                       <li key={savedMemory._id}>
-                           <h3>{savedMemory.name}</h3>
-                           {/* Add other details you want to show for saved memories, e.g.: }
-                           {/* <p>{savedMemory.timeSpent}</p> }
-                           {/* <img src={savedMemory.imageUrl} alt={savedMemory.name} width="100" /> }
-                       </li>
-                   ))}
-           </ul>
-       ) : (
-           <p>{userID ? "No memories saved yet." : "Log in to see saved memories."}</p>
-       )} */}
+     
     </div>
   );
 };
