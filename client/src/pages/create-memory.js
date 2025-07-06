@@ -1,14 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
-import { useGetUserID } from "../hooks/useGetUserID";
+import { useGetUserID } from "../hooks/useGetUserID"; // Still used for initial state, but can be removed if not needed elsewhere
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-const BACKEND_URL = "https://your-memories-backend.onrender.com";
+const BACKEND_URL = "https://your-memories-backend.onrender.com"; // Your backend URL
 
 export const CreateMemory = () => {
 
-    const userID = useGetUserID();
+    const userID = useGetUserID(); // This is now primarily for initial state if you pre-fill something,
+                                  // but userOwner is set by backend from token.
     const [cookies, _] = useCookies(["access_token"]);
 
     const [memory, setMemory] = useState({
@@ -16,7 +17,7 @@ export const CreateMemory = () => {
         descriptions: [],
         imageURL: "",
         timeSpent: "",
-        userOwner: userID,
+        // userOwner: userID, // <--- REMOVE THIS LINE
     });
 
     const navigate = useNavigate();
@@ -42,13 +43,19 @@ export const CreateMemory = () => {
         try {
             await axios.post(`${BACKEND_URL}/memories`, { ...memory },
                 {
-                    headers: { authorization: cookies.access_token },
+                    headers: {
+                        // Ensure your cookie access_token is a pure JWT.
+                        // Add "Bearer " prefix here if your login route doesn't return it with the token.
+                        // Assuming your login route returns just the token, add "Bearer " here:
+                        authorization: `Bearer ${cookies.access_token}`,
+                    },
                 }
             );
             alert("Memory Created!");
             navigate("/");
         } catch (err) {
-            console.error(err);
+            console.error("Error creating memory on frontend:", err.response?.data?.message || err.message);
+            alert(`Failed to create memory: ${err.response?.data?.message || "Please check console for details."}`);
         }
     };
 
