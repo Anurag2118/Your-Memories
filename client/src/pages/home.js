@@ -28,10 +28,10 @@ export const Home = () => {
     // Function to fetch the IDs of memories saved by the current user
     const fetchSavedMemories = async () => {
       if (!userID) {
-          console.log("userID not available yet, skipping fetchSavedMemories");
-          // Ensure savedMemories is empty if no user is logged in
-          setSavedMemories([]);
-          return;
+        console.log("userID not available yet, skipping fetchSavedMemories");
+        // Ensure savedMemories is empty if no user is logged in
+        setSavedMemories([]);
+        return;
       }
       try {
         console.log("Attempting to fetch saved memories for userID:", userID);
@@ -57,10 +57,10 @@ export const Home = () => {
     // Fetch saved memories only if the user is logged in (token and userID available)
     // This will run on mount and whenever the access_token or userID changes
     if (cookies.access_token && userID) {
-        fetchSavedMemories();
+      fetchSavedMemories();
     } else {
-        // If not logged in, ensure savedMemories is an empty array
-        setSavedMemories([]);
+      // If not logged in, ensure savedMemories is an empty array
+      setSavedMemories([]);
     }
   }, [cookies.access_token, userID]); // Dependencies: re-run if token or userID changes
 
@@ -72,9 +72,9 @@ export const Home = () => {
 
     // Prevent saving if user is not logged in or token is missing
     if (!userID || !cookies.access_token) {
-        console.log("Cannot save: User not logged in or token missing.");
-        // You might want to show a UI message to the user here, e.g., "Please log in to save memories."
-        return;
+      console.log("Cannot save: User not logged in or token missing.");
+      // You might want to show a UI message to the user here, e.g., "Please log in to save memories."
+      return;
     }
 
     try {
@@ -88,7 +88,7 @@ export const Home = () => {
           userID,
         },
         {
-          headers: { authorization: cookies.access_token }, // Sending the auth token
+          headers: { authorization: `Bearer ${cookies.access_token}` }, // <<-- FIXED LINE HERE
         }
       );
 
@@ -97,26 +97,26 @@ export const Home = () => {
       // **IMPORTANT:** We expect response.data to contain the *updated* list of saved memory IDs
       // e.g., { message: "Saved!", savedMemories: ["id1", "id2", "newlySavedId"] }
       if (response.data && Array.isArray(response.data.savedMemories)) {
-          // Update the savedMemories state with the latest list from the backend
-          setSavedMemories(response.data.savedMemories);
-          console.log("Saved memories state updated successfully from API response.");
+        // Update the savedMemories state with the latest list from the backend
+        setSavedMemories(response.data.savedMemories);
+        console.log("Saved memories state updated successfully from API response.");
       } else {
-          // Log an error if the backend response format is unexpected
-          console.error("API response did not contain expected 'savedMemories' array:", response.data);
-          // Optionally, re-fetch the saved memories after a short delay
-          // setTimeout(fetchSavedMemories, 1000); // Consider adding a delay and error handling
+        // Log an error if the backend response format is unexpected
+        console.error("API response did not contain expected 'savedMemories' array:", response.data);
+        // Optionally, re-fetch the saved memories after a short delay
+        // setTimeout(fetchSavedMemories, 1000); // Consider adding a delay and error handling
       }
 
     } catch (err) {
       console.error("Error saving memory:", err);
       // Log detailed error info if available
       if (err.response) {
-          console.error("Server responded with error status:", err.response.status);
-          console.error("Server error data:", err.response.data);
+        console.error("Server responded with error status:", err.response.status);
+        console.error("Server error data:", err.response.data);
       } else if (err.request) {
-          console.error("No response received from server.");
+        console.error("No response received from server.");
       } else {
-          console.error("Error setting up request:", err.message);
+        console.error("Error setting up request:", err.message);
       }
       // You might want to show an error message to the user on the UI
     }
@@ -125,10 +125,9 @@ export const Home = () => {
   // Helper function to check if a memory ID is in the savedMemories array
   // Ensures savedMemories is an array before calling .includes()
   const isMemorySaved = (id) => {
-       // console.log(`Checking if ${id} is in`, savedMemories); // Uncomment for verbose check
-       return Array.isArray(savedMemories) && savedMemories.includes(id);
+    // console.log(`Checking if ${id} is in`, savedMemories); // Uncomment for verbose check
+    return Array.isArray(savedMemories) && savedMemories.includes(id);
   };
-
 
   return (
     <div>
@@ -141,17 +140,17 @@ export const Home = () => {
               <h2>{memory.name}</h2>
               {/* Conditionally render the Save button only if the user is logged in (userID exists) */}
               {userID ? (
-                 <button
-                   onClick={() => saveMemory(memory._id)}
-                   // Button is disabled if the memory ID is found in the savedMemories state
-                   disabled={isMemorySaved(memory._id)}
-                 >
-                   {/* Button text changes based on whether the memory is saved */}
-                   {isMemorySaved(memory._id) ? "Saved" : "Save"}
-                 </button>
+                <button
+                  onClick={() => saveMemory(memory._id)}
+                  // Button is disabled if the memory ID is found in the savedMemories state
+                  disabled={isMemorySaved(memory._id)}
+                >
+                  {/* Button text changes based on whether the memory is saved */}
+                  {isMemorySaved(memory._id) ? "Saved" : "Save"}
+                </button>
               ) : (
-                  // Show a message or nothing if the user is not logged in
-                  <p>Log in to save</p>
+                // Show a message or nothing if the user is not logged in
+                <p>Log in to save</p>
               )}
             </div>
             <div className="descriptions">
@@ -165,8 +164,6 @@ export const Home = () => {
           </li>
         ))}
       </ul>
-
-     
     </div>
   );
 };
