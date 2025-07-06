@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useGetUserID } from "../hooks/useGetUserID";
 
+const BACKEND_URL = "https://your-memories-backend.onrender.com";
+
 export const SavedMemories = () => {
   const [savedMemories, setSavedMemories] = useState([]);
   const userID = useGetUserID();
@@ -9,7 +11,7 @@ export const SavedMemories = () => {
   useEffect(() => {
     const fetchSavedMemories = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/memories/savedMemories/${userID}`);
+        const response = await axios.get(`${BACKEND_URL}/memories/savedMemories/${userID}`);
         setSavedMemories(response.data.savedMemories);
       } catch (err) {
         console.error(err);
