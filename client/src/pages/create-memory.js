@@ -4,6 +4,8 @@ import { useGetUserID } from "../hooks/useGetUserID";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
+const BACKEND_URL = "https://your-memories-backend.onrender.com";
+
 export const CreateMemory = () => {
 
     const userID = useGetUserID();
@@ -38,7 +40,7 @@ export const CreateMemory = () => {
     const onSubmit = async (event) => {
         event.preventDefault();
         try {
-            await axios.post("http://localhost:3001/memories", { ...memory },
+            await axios.post(`${BACKEND_URL}/memories`, { ...memory },
                 {
                     headers: { authorization: cookies.access_token },
                 }
