@@ -3,6 +3,8 @@ import axios from "axios";
 import { useGetUserID } from "../hooks/useGetUserID";
 import { useCookies } from "react-cookie";
 
+const BACKEND_URL = "https://your-memories-backend.onrender.com";
+
 export const Home = () => {
   const [memories, setMemories] = useState([]);
   // Initialize savedMemories as an empty array
@@ -15,7 +17,7 @@ export const Home = () => {
     // Function to fetch all memories
     const fetchMemories = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/memories");
+        const response = await axios.get(`${BACKEND_URL}/memories`);
         setMemories(response.data);
         console.log("Memories fetched successfully.");
       } catch (err) {
@@ -35,7 +37,7 @@ export const Home = () => {
         console.log("Attempting to fetch saved memories for userID:", userID);
         // This GET endpoint should return an object like { savedMemories: ["id1", "id2"] }
         const response = await axios.get(
-          `http://localhost:3001/memories/savedMemories/ids/${userID}`
+          `${BACKEND_URL}/memories/savedMemories/ids/${userID}`
         );
         console.log("Fetched saved memories response:", response.data);
         // Expecting response.data.savedMemories to be an array. Default to empty array if not.
@@ -80,7 +82,7 @@ export const Home = () => {
       // This PUT endpoint should expect { memoryID: "...", userID: "..." }
       // and should *return* the *updated* list of saved memory IDs for the user.
       const response = await axios.put(
-        "http://localhost:3001/memories", // Make sure this is the correct endpoint for saving
+        `${BACKEND_URL}/memories`, // Make sure this is the correct endpoint for saving
         {
           memoryID,
           userID,
@@ -164,25 +166,7 @@ export const Home = () => {
         ))}
       </ul>
 
-      {/* Optional: Section to display saved memories - uncomment and adapt as needed */}
-       {/* <h2>Saved Memories</h2>
-       {Array.isArray(savedMemories) && savedMemories.length > 0 ? (
-           <ul>
-               {memories
-                   // Filter all memories to find saved ones based on the savedMemories IDs
-                   .filter(memory => isMemorySaved(memory._id))
-                   .map(savedMemory => (
-                       <li key={savedMemory._id}>
-                           <h3>{savedMemory.name}</h3>
-                           {/* Add other details you want to show for saved memories, e.g.: }
-                           {/* <p>{savedMemory.timeSpent}</p> }
-                           {/* <img src={savedMemory.imageUrl} alt={savedMemory.name} width="100" /> }
-                       </li>
-                   ))}
-           </ul>
-       ) : (
-           <p>{userID ? "No memories saved yet." : "Log in to see saved memories."}</p>
-       )} */}
+     
     </div>
   );
 };
