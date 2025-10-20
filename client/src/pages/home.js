@@ -80,13 +80,16 @@ export const Home = () => {
                   objectFit: 'cover' 
                 }}
               />
-              <CardContent sx={{ flexGrow: 1, overflow: 'hidden' }}>
+              <CardContent sx={{ flexGrow: 1, overflow: 'auto' }}>
                 <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
                   {memory.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {memory.descriptions[0]}
-                </Typography>
+                {memory.descriptions.map((desc, index) => (
+                  <Typography key={index} variant="body2" color="text.secondary">
+                    • {desc}
+                  </Typography>
+                ))}
+
               </CardContent>
               <CardActions sx={{ paddingX: 2, paddingBottom: 2 }}>
                 {userID ? (
