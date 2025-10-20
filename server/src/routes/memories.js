@@ -1,7 +1,7 @@
 import express from "express";
 import { UserModel } from "../models/Users.js";
 import { MemoryModel } from "../models/memories.js";
-import { verifyToken } from "./users.js"; // Ensure this path is correct relative to memories.js
+import { verifyToken } from "./users.js";
 
 const router = express.Router();
 
@@ -17,59 +17,49 @@ router.get("/", async (req, res) => {
 
 // POST a new memory (requires token)
 router.post("/", verifyToken, async (req, res) => {
-    // Ensure the userOwner is the authenticated user from the token
-    // This is safer than relying on req.body.userOwner from the frontend
     const memory = new MemoryModel({
         ...req.body,
-        userOwner: req.userID // Use the userID from the verified token
+        userOwner: req.userID
     });
     try {
         const response = await memory.save();
-        res.status(201).json(response); // 201 Created
+        res.status(201).json(response);
     } catch (err) {
-        console.error("Error creating memory:", err); // Log the error for debugging
         res.status(500).json({ message: err.message });
     }
 });
 
-// PUT (save) a memory for a user (requires token)
+// PUT to toggle saving a memory (requires token)
 router.put("/", verifyToken, async (req, res) => {
-    const { memoryID } = req.body; // Only need memoryID, userID comes from token
-    const userID = req.userID; // Get userID from the authenticated token
+    const { memoryID } = req.body;
+    const userID = req.userID;
 
     try {
-        // Find the memory by its ID
-        const memory = await MemoryModel.findById(memoryID);
-
-        // Find the user by their ID
         const user = await UserModel.findById(userID);
-
-        // Check if both memory and user were found
-        if (!memory) {
-            return res.status(404).json({ message: "Memory not found." });
-        }
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
+        
+        const isSaved = user.savedMemories.some(savedId => savedId.toString() === memoryID);
 
-        // Add the memory's ID to the user's savedMemories array if it's not already there
-        if (!user.savedMemories.includes(memoryID)) {
-            user.savedMemories.push(memory._id);
-            await user.save(); // Save the updated user document
+        if (isSaved) {
+            // If already saved, remove it
+            await UserModel.updateOne({ _id: userID }, { $pull: { savedMemories: memoryID } });
+        } else {
+            // If not saved, add it
+            await UserModel.updateOne({ _id: userID }, { $push: { savedMemories: memoryID } });
         }
 
-        // Respond with the updated list of saved memory IDs from the user document
-        res.json({ savedMemories: user.savedMemories });
+        const updatedUser = await UserModel.findById(userID);
+        res.json({ savedMemories: updatedUser.savedMemories });
 
     } catch (err) {
-        console.error("Error saving memory on backend:", err);
-        res.status(500).json({ message: err.message });
+        console.error("Error in PUT /memories:", err);
+        res.status(500).json({ message: "Server error while updating saved memories." });
     }
 });
 
 // GET IDs of saved memories for a specific user
-// Note: This route doesn't use verifyToken as it's intended to get public saved IDs.
-// If you want to restrict this to the *current* user, add verifyToken and use req.userID.
 router.get("/savedMemories/ids/:userID", async (req, res) => {
     try {
         const user = await UserModel.findById(req.params.userID);
@@ -80,11 +70,9 @@ router.get("/savedMemories/ids/:userID", async (req, res) => {
 });
 
 // GET the full saved memories documents for a specific user
-// Note: Similar to the above, add verifyToken if you want to restrict this.
 router.get("/savedMemories/:userID", async (req, res) => {
     try {
         const user = await UserModel.findById(req.params.userID);
-
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }

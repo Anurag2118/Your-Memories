@@ -3,17 +3,60 @@ import axios from "axios";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = "https://your-memories-backend.onrender.com";
+// Material-UI Components
+import { Box, Button, TextField, Typography, Paper } from "@mui/material";
 
-export const Auth = () => {
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Reusable Form Component with MUI
+const Form = ({
+  label,
+  username,
+  setUsername,
+  password,
+  setPassword,
+  onSubmit,
+}) => {
   return (
-    <div className="auth">
-      <Login />
-      <Register />
-    </div>
+    // Box is a flexible container from MUI
+    <Box
+      component="form" // Renders as a <form> tag
+      onSubmit={onSubmit}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2, // Adds space between form elements
+        width: "100%",
+      }}
+    >
+      <Typography variant="h4" component="h2" gutterBottom>
+        {label}
+      </Typography>
+      <TextField
+        label="Username"
+        variant="outlined"
+        required
+        fullWidth
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <TextField
+        label="Password"
+        type="password"
+        variant="outlined"
+        required
+        fullWidth
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Button type="submit" variant="contained" size="large" fullWidth>
+        {label}
+      </Button>
+    </Box>
   );
 };
 
+// Login Component (Logic is the same, UI is changed)
 const Login = () => {
   const [_, setCookies] = useCookies(["access_token"]);
   const [username, setUsername] = useState("");
@@ -32,21 +75,23 @@ const Login = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || "Login failed. Please check credentials.");
     }
   };
 
   return (
     <Form
+      label="Login"
       username={username}
       setUsername={setUsername}
       password={password}
       setPassword={setPassword}
-      label="Login"
       onSubmit={onSubmit}
     />
   );
 };
 
+// Register Component (Logic is the same, UI is changed)
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -58,39 +103,52 @@ const Register = () => {
         username,
         password,
       });
-      alert("Registration Completed! Now Login.");
+      alert("Registration Completed! Now you can log in.");
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || "Registration failed. User may already exist.");
     }
   };
 
   return (
     <Form
+      label="Register"
       username={username}
       setUsername={setUsername}
       password={password}
       setPassword={setPassword}
-      label="Register"
       onSubmit={onSubmit}
     />
   );
 };
 
-const Form = ({ username, setUsername, password, setPassword, label, onSubmit }) => {
+// Main Auth Page Component
+export const Auth = () => {
   return (
-    <div className="auth-container">
-      <form onSubmit={onSubmit}>
-        <h2>{label}</h2>
-        <div className="form-group">
-          <label htmlFor="username">Username:</label>
-          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        <button type="submit">{label}</button>
-      </form>
-    </div>
+    // This main Box centers everything
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "calc(100vh - 64px)", // Full viewport height minus navbar height
+      }}
+    >
+      {/* Paper gives the card-like appearance with a shadow */}
+      <Paper
+        elevation={6}
+        sx={{
+          padding: 4,
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          width: '100%',
+          maxWidth: "400px", // Limits the form width on larger screens
+        }}
+      >
+        <Login />
+        <Register />
+      </Paper>
+    </Box>
   );
 };

@@ -1,169 +1,113 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useGetUserID } from "../hooks/useGetUserID";
 import { useCookies } from "react-cookie";
+import { Box, Grid, Card, CardMedia, CardContent, CardActions, Button, Typography, CircularProgress } from "@mui/material";
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 
-const BACKEND_URL = "https://your-memories-backend.onrender.com";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const Home = () => {
   const [memories, setMemories] = useState([]);
-  // Initialize savedMemories as an empty array
   const [savedMemories, setSavedMemories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [cookies, _] = useCookies(["access_token"]);
-  const userID = useGetUserID(); // Hook to get the user ID
+  const userID = useGetUserID();
 
-  // Effect to fetch initial memories and saved memories
   useEffect(() => {
-    // Function to fetch all memories
-    const fetchMemories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/memories`);
-        setMemories(response.data);
-        console.log("Memories fetched successfully.");
-      } catch (err) {
-        console.error("Error fetching memories:", err);
-      }
-    };
+        const memoriesResponse = await axios.get(`${BACKEND_URL}/memories`);
+        setMemories(memoriesResponse.data);
 
-    // Function to fetch the IDs of memories saved by the current user
-    const fetchSavedMemories = async () => {
-      if (!userID) {
-        console.log("userID not available yet, skipping fetchSavedMemories");
-        // Ensure savedMemories is empty if no user is logged in
-        setSavedMemories([]);
-        return;
-      }
-      try {
-        console.log("Attempting to fetch saved memories for userID:", userID);
-        // This GET endpoint should return an object like { savedMemories: ["id1", "id2"] }
-        const response = await axios.get(
-          `${BACKEND_URL}/memories/savedMemories/ids/${userID}`
-        );
-        console.log("Fetched saved memories response:", response.data);
-        // Expecting response.data.savedMemories to be an array. Default to empty array if not.
-        // This handles the initial load of saved memory IDs
-        setSavedMemories(response.data.savedMemories || []);
-        console.log("Saved memories state initialized from fetch.");
-      } catch (err) {
-        console.error("Error fetching saved memories:", err);
-        // In case of error, ensure savedMemories is at least an empty array
-        setSavedMemories([]);
-      }
-    };
-
-    // Fetch all memories on component mount
-    fetchMemories();
-
-    // Fetch saved memories only if the user is logged in (token and userID available)
-    // This will run on mount and whenever the access_token or userID changes
-    if (cookies.access_token && userID) {
-      fetchSavedMemories();
-    } else {
-      // If not logged in, ensure savedMemories is an empty array
-      setSavedMemories([]);
-    }
-  }, [cookies.access_token, userID]); // Dependencies: re-run if token or userID changes
-
-  // Function to handle saving a memory
-  const saveMemory = async (memoryID) => {
-    console.log("Save button clicked for memoryID:", memoryID);
-    console.log("Current userID:", userID);
-    console.log("Current access_token:", cookies.access_token);
-
-    // Prevent saving if user is not logged in or token is missing
-    if (!userID || !cookies.access_token) {
-      console.log("Cannot save: User not logged in or token missing.");
-      // You might want to show a UI message to the user here, e.g., "Please log in to save memories."
-      return;
-    }
-
-    try {
-      console.log("Attempting to send PUT request to save memory...");
-      // This PUT endpoint should expect { memoryID: "...", userID: "..." }
-      // and should *return* the *updated* list of saved memory IDs for the user.
-      const response = await axios.put(
-        `${BACKEND_URL}/memories`, // Make sure this is the correct endpoint for saving
-        {
-          memoryID,
-          userID,
-        },
-        {
-          headers: { authorization: `Bearer ${cookies.access_token}` }, // <<-- FIXED LINE HERE
+        if (cookies.access_token && userID) {
+          const savedResponse = await axios.get(
+            `${BACKEND_URL}/memories/savedMemories/ids/${userID}`
+          );
+          setSavedMemories(savedResponse.data.savedMemories || []);
         }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userID, cookies.access_token]);
+
+  const toggleSaveMemory = async (memoryID) => {
+    try {
+      const response = await axios.put(
+        `${BACKEND_URL}/memories`,
+        { memoryID, userID },
+        { headers: { authorization: `Bearer ${cookies.access_token}` } }
       );
-
-      console.log("Response from PUT /memories:", response.data);
-
-      // **IMPORTANT:** We expect response.data to contain the *updated* list of saved memory IDs
-      // e.g., { message: "Saved!", savedMemories: ["id1", "id2", "newlySavedId"] }
-      if (response.data && Array.isArray(response.data.savedMemories)) {
-        // Update the savedMemories state with the latest list from the backend
-        setSavedMemories(response.data.savedMemories);
-        console.log("Saved memories state updated successfully from API response.");
-      } else {
-        // Log an error if the backend response format is unexpected
-        console.error("API response did not contain expected 'savedMemories' array:", response.data);
-        // Optionally, re-fetch the saved memories after a short delay
-        // setTimeout(fetchSavedMemories, 1000); // Consider adding a delay and error handling
-      }
-
+      setSavedMemories(response.data.savedMemories);
     } catch (err) {
-      console.error("Error saving memory:", err);
-      // Log detailed error info if available
-      if (err.response) {
-        console.error("Server responded with error status:", err.response.status);
-        console.error("Server error data:", err.response.data);
-      } else if (err.request) {
-        console.error("No response received from server.");
-      } else {
-        console.error("Error setting up request:", err.message);
-      }
-      // You might want to show an error message to the user on the UI
+      console.error("Error toggling save state:", err);
     }
   };
 
-  // Helper function to check if a memory ID is in the savedMemories array
-  // Ensures savedMemories is an array before calling .includes()
-  const isMemorySaved = (id) => {
-    // console.log(`Checking if ${id} is in`, savedMemories); // Uncomment for verbose check
-    return Array.isArray(savedMemories) && savedMemories.includes(id);
-  };
+  const isMemorySaved = (id) => savedMemories.includes(id);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div>
-      <h1>Memories</h1>
-      <ul>
-        {/* Map through the list of all memories */}
+    <Box sx={{ paddingX: { xs: 2, sm: 4 }, paddingY: 5, backgroundColor: '#f4f6f8' }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: 4 }}>
+        Discover Memories
+      </Typography>
+      
+      <Grid container spacing={3} justifyContent="center">
         {memories.map((memory) => (
-          <li key={memory._id}>
-            <div>
-              <h2>{memory.name}</h2>
-              {/* Conditionally render the Save button only if the user is logged in (userID exists) */}
-              {userID ? (
-                <button
-                  onClick={() => saveMemory(memory._id)}
-                  // Button is disabled if the memory ID is found in the savedMemories state
-                  disabled={isMemorySaved(memory._id)}
-                >
-                  {/* Button text changes based on whether the memory is saved */}
-                  {isMemorySaved(memory._id) ? "Saved" : "Save"}
-                </button>
-              ) : (
-                // Show a message or nothing if the user is not logged in
-                <p>Log in to save</p>
-              )}
-            </div>
-            <div className="descriptions">
-              {/* Map through descriptions if they exist and are an array */}
-              {memory.descriptions && Array.isArray(memory.descriptions) && memory.descriptions.map((desc, i) => (
-                <p key={i}>{desc}</p>
-              ))}
-            </div>
-            <img src={memory.imageURL} alt={memory.name} />
-            <p>Time Spent: {memory.timeSpent}</p>
-          </li>
+          <Grid item key={memory._id} xs={12} sm={6} md={4} lg={3}>
+            <Card sx={{ height: 360, display: 'flex', flexDirection: 'column', borderRadius: 2, boxShadow: 3 }}>
+              <CardMedia
+                component="img"
+                image={memory.imageURL}
+                alt={memory.name}
+                sx={{ 
+                  height: 200, // Fixed height for the image area
+                  objectFit: 'cover' 
+                }}
+              />
+              <CardContent sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+                  {memory.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {memory.descriptions[0]}
+                </Typography>
+              </CardContent>
+              <CardActions sx={{ paddingX: 2, paddingBottom: 2 }}>
+                {userID ? (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => toggleSaveMemory(memory._id)}
+                    startIcon={isMemorySaved(memory._id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                  >
+                    {isMemorySaved(memory._id) ? "Saved" : "Save"}
+                  </Button>
+                ) : (
+                  <Typography variant="caption" color="text.secondary">
+                    Login to save
+                  </Typography>
+                )}
+              </CardActions>
+            </Card>
+          </Grid>
         ))}
-      </ul>
-    </div>
+      </Grid>
+    </Box>
   );
 };
