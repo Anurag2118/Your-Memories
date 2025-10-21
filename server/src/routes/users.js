@@ -27,24 +27,22 @@ router.post("/login", async (req, res) => {
     const { username, password } = req.body;
     const user = await UserModel.findOne({ username });
 
-    if (!user){
-        return res.json({message: "User does not exist!"});
+    if (!user) {
+        return res.status(400).json({ message: "User does not exist!" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid){
-        return res.json({message: "User or Password is Incorrect!"});
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: "Username or Password is incorrect!" });
     }
 
-    // IMPORTANT: For production, replace "secret" with an environment variable (e.g., process.env.JWT_SECRET)
-    const token = jwt.sign({id: user._id}, "secret");
-    res.json({token, userID: user._id});
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    res.json({ token, userID: user._id });
 });
 
 export { router as userRouter };
 
-// --- MODIFIED VERIFYTOKEN FUNCTION ---
 export const verifyToken = (req, res, next) => {
     let token = req.headers.authorization; // Get the full Authorization header value
 
@@ -59,15 +57,12 @@ export const verifyToken = (req, res, next) => {
         token = token.slice(7, token.length); // Remove "Bearer " (7 characters)
     } else {
         // This case means a token was provided but not in the expected "Bearer <token>" format.
-        // It's good practice to enforce this format.
         console.warn("VerifyToken: Token provided but not in 'Bearer <token>' format.");
         return res.status(401).json({ message: "Unauthorized: Invalid token format." });
     }
 
     // 3. Verify the JWT
-    // IMPORTANT: Use the SAME "secret" used for signing the token in the login route.
-    // For production, this should also be an environment variable.
-    jwt.verify(token, "secret", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             // Log the specific error from JWT verification for debugging on Render logs
             console.error("JWT Verification Failed:", err.message);

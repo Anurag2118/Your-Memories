@@ -70,15 +70,20 @@ const Login = () => {
         username,
         password,
       });
-      setCookies("access_token", response.data.token);
-      window.localStorage.setItem("userID", response.data.userID);
-      navigate("/");
+
+      if (response.data.token) {
+        setCookies("access_token", response.data.token);
+        window.localStorage.setItem("userID", response.data.userID);
+        navigate("/");
+      }
+
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Login failed. Please check credentials.");
+      setCookies("access_token", "");
+      window.localStorage.removeItem("userID");
+      alert(err.response.data.message);
     }
   };
-
+  
   return (
     <Form
       label="Login"
