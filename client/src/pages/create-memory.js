@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-
-// Material-UI Components
 import { Box, Button, TextField, Typography, Paper, IconButton } from "@mui/material";
-// Material-UI Icons
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import BackupIcon from '@mui/icons-material/Backup';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -17,10 +15,12 @@ export const CreateMemory = () => {
 
   const [memory, setMemory] = useState({
     name: "",
-    descriptions: [""], // Start with one empty description field
-    imageURL: "",
+    descriptions: [""],
     timeSpent: "",
   });
+
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -38,21 +38,38 @@ export const CreateMemory = () => {
     setMemory({ ...memory, descriptions: [...memory.descriptions, ""] });
   };
   
-  // New function to remove a description field
   const removeDescription = (idx) => {
     const descriptions = [...memory.descriptions];
-    descriptions.splice(idx, 1); // remove one element at index idx
+    descriptions.splice(idx, 1);
     setMemory({ ...memory, descriptions });
   }
 
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
+    
+    const formData = new FormData();
+    formData.append("name", memory.name);
+    formData.append("descriptions", JSON.stringify(memory.descriptions));
+    formData.append("timeSpent", memory.timeSpent);
+    formData.append("image", image);
+
     try {
       await axios.post(
         `${BACKEND_URL}/memories`,
-        { ...memory },
+        formData,
         {
-          headers: { authorization: `Bearer ${cookies.access_token}` },
+          headers: { 
+            authorization: `Bearer ${cookies.access_token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
       alert("Memory Created!");
@@ -64,22 +81,20 @@ export const CreateMemory = () => {
   };
 
   return (
-    // This main Box centers everything
     <Box
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        paddingY: 4, // Add some vertical padding
+        paddingY: 4,
       }}
     >
-      {/* Paper gives the card-like appearance with a shadow */}
       <Paper
         elevation={6}
         sx={{
           padding: 4,
           width: '100%',
-          maxWidth: "600px", // Make the form a bit wider
+          maxWidth: "600px",
         }}
       >
         <Box component="form" onSubmit={onSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -88,8 +103,30 @@ export const CreateMemory = () => {
           </Typography>
 
           <TextField label="Name / Title" name="name" required fullWidth value={memory.name} onChange={handleChange} />
-          <TextField label="Image URL" name="imageURL" required fullWidth value={memory.imageURL} onChange={handleChange} />
           <TextField label="Time Spent (e.g., '2 Hours', '3 Days')" name="timeSpent" required fullWidth value={memory.timeSpent} onChange={handleChange} />
+          
+          <Box sx={{ border: '2px dashed grey', borderRadius: 2, padding: 2, textAlign: 'center' }}>
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<BackupIcon />}
+            >
+              Upload Image
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleImageChange}
+                required
+              />
+            </Button>
+            {imagePreview && (
+              <Box sx={{ marginTop: 2 }}>
+                <Typography variant="caption">Image Preview:</Typography>
+                <img src={imagePreview} alt="Preview" style={{ width: '100%', height: 'auto', marginTop: '8px' }} />
+              </Box>
+            )}
+          </Box>
 
           <Typography variant="h6">Descriptions</Typography>
           {memory.descriptions.map((description, idx) => (
@@ -97,8 +134,8 @@ export const CreateMemory = () => {
                <TextField
                 label={`Description #${idx + 1}`}
                 fullWidth
-                multiline // Allows multiple lines of text
-                rows={2}   // Starts with a height of 2 lines
+                multiline
+                rows={2}
                 value={description}
                 onChange={(event) => handleDescriptionChange(event, idx)}
               />
