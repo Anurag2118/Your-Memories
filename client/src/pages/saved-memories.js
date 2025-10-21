@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useGetUserID } from "../hooks/useGetUserID";
-import { Box, Grid, Card, CardMedia, CardContent, Typography, CircularProgress } from "@mui/material";
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress } from "@mui/material";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -50,36 +50,36 @@ export const SavedMemories = () => {
           You haven't saved any memories yet.
         </Typography>
       ) : (
-        <Grid container spacing={3} justifyContent="center">
+         // --- FIX IS HERE --- Using CSS Grid directly
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', // Responsive columns
+          gap: 3, // Space between grid items
+          maxWidth: 1200,
+          marginX: 'auto' // Center the grid container
+        }}>
           {savedMemories.map((memory) => (
-            <Grid item key={memory._id} xs={12} sm={6} md={4} lg={3}>
-              <Card sx={{ height: 360, display: 'flex', flexDirection: 'column', borderRadius: 2, boxShadow: 3 }}>
-                <CardMedia
-                  component="img"
-                  image={memory.imageURL}
-                  alt={memory.name}
-                  sx={{ 
-                    height: 200, // Fixed height for the image area
-                    objectFit: 'cover' 
-                  }}
-                />
-                <CardContent sx={{ flexGrow: 1, overflow: 'auto' }}>
-                  <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
-                    {memory.name}
+            <Card key={memory._id} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 2, boxShadow: 3, height: 400 }}>
+              <CardMedia
+                component="img"
+                height="200"
+                image={memory.imageURL}
+                alt={memory.name}
+                sx={{ objectFit: 'cover' }}
+              />
+              <CardContent sx={{ flexGrow: 1, overflow: 'auto' }}>
+                <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+                  {memory.name}
+                </Typography>
+                {memory.descriptions.map((desc, index) => (
+                  <Typography key={index} variant="body2" color="text.secondary">
+                    • {desc}
                   </Typography>
-
-                  {/* --- YAHAN PAR FIX KIYA HAI --- */}
-                  {memory.descriptions.map((desc, index) => (
-                    <Typography key={index} variant="body2" color="text.secondary">
-                      • {desc}
-                    </Typography>
-                  ))}
-                  
-                </CardContent>
-              </Card>
-            </Grid>
+                ))}
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </Box>
       )}
     </Box>
   );

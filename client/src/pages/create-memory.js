@@ -76,7 +76,7 @@ export const CreateMemory = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Failed to create memory. Please check console for details.");
+      alert("Failed to create memory. Please register and login first.");
     }
   };
 
