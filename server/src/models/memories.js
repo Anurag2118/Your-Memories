@@ -17,6 +17,16 @@ const MemorySchema = new mongoose.Schema({
         type: String, 
         required: true
     },
+    budget: {
+        type: Number, 
+        required: true,
+        default: 0
+    },
+    category: {
+        type: String, 
+        required: true,
+        default: "General"
+    },
     userOwner:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",

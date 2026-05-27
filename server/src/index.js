@@ -14,7 +14,7 @@ app.use("/auth", userRouter);
 
 app.use("/memories", memoriesRouter);
 
-mongoose.connect(process.env.REACT_APP_MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI);
 
 app.listen(port,()=>{
     console.log("SERVER STARTED");

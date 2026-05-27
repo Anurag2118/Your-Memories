@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { Box, Button, TextField, Typography, Paper, IconButton } from "@mui/material";
+import { 
+  Box, Button, TextField, Typography, Paper, IconButton, 
+  MenuItem, Select, FormControl, InputLabel 
+} from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import BackupIcon from '@mui/icons-material/Backup';
@@ -17,6 +20,8 @@ export const CreateMemory = () => {
     name: "",
     descriptions: [""],
     timeSpent: "",
+    budget: "",
+    category: "",
   });
 
   const [image, setImage] = useState(null);
@@ -55,10 +60,14 @@ export const CreateMemory = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
     
+    const cleanedDescriptions = memory.descriptions.filter(desc => desc.trim() !== "");
+
     const formData = new FormData();
     formData.append("name", memory.name);
-    formData.append("descriptions", JSON.stringify(memory.descriptions));
+    formData.append("descriptions", JSON.stringify(cleanedDescriptions));
     formData.append("timeSpent", memory.timeSpent);
+    formData.append("budget", memory.budget);
+    formData.append("category", memory.category);
     formData.append("image", image);
 
     try {
@@ -76,7 +85,7 @@ export const CreateMemory = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Failed to create memory. Please register and login first.");
+      alert("Failed to create memory. Please check inputs or try again.");
     }
   };
 
@@ -103,7 +112,44 @@ export const CreateMemory = () => {
           </Typography>
 
           <TextField label="Name / Title" name="name" required fullWidth value={memory.name} onChange={handleChange} />
-          <TextField label="Time Spent (e.g., '2 Hours', '3 Days')" name="timeSpent" required fullWidth value={memory.timeSpent} onChange={handleChange} />
+          
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <TextField 
+              label="Time Spent (e.g., '3 Days')" 
+              name="timeSpent" 
+              required 
+              fullWidth 
+              value={memory.timeSpent} 
+              onChange={handleChange} 
+            />
+            <TextField 
+              label="Budget (₹)" 
+              name="budget" 
+              type="number"
+              required 
+              fullWidth 
+              value={memory.budget} 
+              onChange={handleChange} 
+            />
+          </Box>
+
+          <FormControl fullWidth required>
+            <InputLabel>Category</InputLabel>
+            <Select
+              name="category"
+              value={memory.category}
+              label="Category"
+              onChange={handleChange}
+            >
+              <MenuItem value="Mountain">Mountain</MenuItem>
+              <MenuItem value="Beach">Beach</MenuItem>
+              <MenuItem value="City/Urban">City/Urban</MenuItem>
+              <MenuItem value="Religious/Spiritual">Religious/Spiritual</MenuItem>
+              <MenuItem value="Adventure">Adventure</MenuItem>
+              <MenuItem value="Desert">Desert</MenuItem>
+              <MenuItem value="General">General/Other</MenuItem>
+            </Select>
+          </FormControl>
           
           <Box sx={{ border: '2px dashed grey', borderRadius: 2, padding: 2, textAlign: 'center' }}>
             <Button

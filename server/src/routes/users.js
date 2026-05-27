@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { UserModel } from "../models/Users.js"; // Ensure this path is correct relative to users.js
+import { UserModel } from "../models/Users.js";
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new UserModel({username, password: hashedPassword});
-    await newUser.save(); // Add await here for proper async handling
+    await newUser.save();
 
     res.json({message: "User registered Successfully!"});
 });
@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        return res.status(400).json({ message: "Username or Password is incorrect!" });
+        return res.status(400).json({ message: "Incorrect password!" });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
@@ -46,13 +46,13 @@ export { router as userRouter };
 export const verifyToken = (req, res, next) => {
     let token = req.headers.authorization; // Get the full Authorization header value
 
-    // 1. Check if token header is provided
+    // Check if token header is provided
     if (!token) {
         console.warn("VerifyToken: No Authorization header provided.");
         return res.status(401).json({ message: "Unauthorized: No token provided." });
     }
 
-    // 2. Check if it starts with "Bearer " and strip the prefix
+    // Check if it starts with "Bearer " and strip the prefix
     if (token.startsWith("Bearer ")) {
         token = token.slice(7, token.length); // Remove "Bearer " (7 characters)
     } else {
@@ -61,7 +61,7 @@ export const verifyToken = (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized: Invalid token format." });
     }
 
-    // 3. Verify the JWT
+    // Verify the JWT
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             // Log the specific error from JWT verification for debugging on Render logs
