@@ -27,13 +27,15 @@ export const Home = () => {
 
   const [cookies, _] = useCookies(["access_token"]);
   const userID = useGetUserID();
+  
+  const isLoggedIn = Boolean(cookies.access_token && userID);
 
   const fetchData = async () => {
     try {
       const memoriesResponse = await axios.get(`${BACKEND_URL}/memories`);
       setMemories(memoriesResponse.data);
 
-      if (cookies.access_token && userID) {
+      if (isLoggedIn) {
         const savedResponse = await axios.get(
           `${BACKEND_URL}/memories/savedMemories/ids/${userID}`
         );
@@ -152,17 +154,23 @@ export const Home = () => {
   return (
     <Box sx={{ paddingX: { xs: 2, sm: 4 }, paddingY: 5, backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
       
-      {userID && (
-        <Box sx={{ maxWidth: 1200, marginX: 'auto', marginBottom: 6 }}>
-          <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1, color: '#1976d2' }}>
-            <AutoAwesomeIcon /> Recommended For You
-          </Typography>
-          
-          {recLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: 4 }}>
-              <CircularProgress size={32} />
-            </Box>
-          ) : recommendations.length > 0 ? (
+      {/* AI Recommendation Section */}
+      <Box sx={{ maxWidth: 1200, marginX: 'auto', marginBottom: 6 }}>
+        <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 1, color: '#1976d2' }}>
+          <AutoAwesomeIcon /> Recommended For You
+        </Typography>
+        
+        {!isLoggedIn ? (
+          <Paper elevation={1} sx={{ padding: 4, textAlign: 'center', backgroundColor: '#e3f2fd', borderRadius: 2 }}>
+            <Typography variant="h6" color="text.secondary">
+              Login to view personalized AI recommendations!
+            </Typography>
+          </Paper>
+        ) : recLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: 4 }}>
+            <CircularProgress size={32} />
+          </Box>
+        ) : recommendations.length > 0 ? (
             <Box sx={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -197,16 +205,23 @@ export const Home = () => {
                         </Typography>
                       ))}
                     </CardContent>
-                    <CardActions sx={{ paddingX: 2, paddingBottom: 2 }}>
+                    <CardActions sx={{ paddingX: 2, paddingBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
+                    {!isLoggedIn ? (
+                      <Typography variant="caption" color="text.secondary">
+                        Login to save
+                      </Typography>
+                    ) : userID !== ownerID ? (
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         size="small"
-                        color="primary"
                         onClick={() => toggleSaveMemory(memory._id)}
                         startIcon={isMemorySaved(memory._id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                       >
                         {isMemorySaved(memory._id) ? "Saved" : "Save"}
                       </Button>
+                    ) : (
+                      <Box />
+                    )}
                     </CardActions>
                   </Card>
                 );
@@ -226,9 +241,9 @@ export const Home = () => {
             </Paper>
           )}
           <Divider sx={{ marginTop: 5 }} />
-        </Box>
-      )}
+      </Box>
 
+      {/* Discover Memories Section */}
       <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold', marginBottom: 4 }}>
         Discover Memories
       </Typography>
@@ -270,7 +285,7 @@ export const Home = () => {
                 ))}
               </CardContent>
               <CardActions sx={{ paddingX: 2, paddingBottom: 2, display: 'flex', justifyContent: 'space-between' }}>
-                {!userID ? (
+                {!isLoggedIn ? (
                   <Typography variant="caption" color="text.secondary">
                     Login to save
                   </Typography>
@@ -287,7 +302,7 @@ export const Home = () => {
                   <Box />
                 )}
                 
-                {userID === ownerID && (
+                {isLoggedIn && userID === ownerID && (
                   <Box>
                     <IconButton color="primary" onClick={() => openEditDialog(memory)}>
                       <EditIcon />
